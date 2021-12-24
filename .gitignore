@@ -7,14 +7,14 @@ dist
 *.ipynb_checkpoints/*
 .ipynb_checkpoints
 .DS_Store
-./data/DATA.mat
 /logs
 mlruns
 *.zip
 *.tar
 *.png
 *.jpg
-
+data/DATA.mat
+checkpoints
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm,jupyternotebooks
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm,jupyternotebooks
 
