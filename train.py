@@ -14,7 +14,9 @@ parser.add_argument('--epochs', default=200, type=int, help="Number of training 
 parser.add_argument('--bs', default=4, type=int, help="batch size, default is set to 4")
 parser.add_argument('--checkpoints', default="./checkpoints", type=str,
                     help="Path to checkpoints, default is ./checkpoints")
-parser.add_argument("--early-stopping", default=15, type=int, help="early stopping patience epoch number, default is 15")
+parser.add_argument("--early-stopping", default=30, type=int,
+                    help="early stopping patience epoch number, default is 15")
+parser.add_argument("--reduce-lr", default=10, type=int, help="reduce lr patience, default is 10")
 args = parser.parse_args()
 
 # set seeds for reproducibility
@@ -31,7 +33,8 @@ model.summary()
 
 # train the model
 print(f"[INFO] Started the training for model: {args.model_name} ...")
-callbacks = get_callbacks(args.checkpoints, early_stopping_p=args.early_stopping, model_name=args.model_name)
+callbacks = get_callbacks(args.checkpoints, early_stopping_p=args.early_stopping, model_name=args.model_name,
+                          reduce_lr_patience=args.reduce_lr)
 history = model.fit(x_train, y_train,
                     epochs=args.epochs,
                     batch_size=args.bs,

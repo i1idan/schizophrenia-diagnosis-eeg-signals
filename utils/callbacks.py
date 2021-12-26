@@ -7,6 +7,7 @@ from datetime import datetime
 
 def get_callbacks(checkpoint_dir,
                   early_stopping_p,
+                  reduce_lr_patience,
                   model_name,
                   **kwargs):
     """
@@ -35,7 +36,7 @@ def get_callbacks(checkpoint_dir,
 
     reduce_lr = ReduceLROnPlateau(monitor='val_loss',
                                   factor=0.5,  # new_lr = lr * factor
-                                  patience=5,  # number of epochs with no improvment
+                                  patience=reduce_lr_patience,  # number of epochs with no improvment
                                   min_lr=1e-5,  # lower bound on the learning rate
                                   mode='min',
                                   verbose=1
