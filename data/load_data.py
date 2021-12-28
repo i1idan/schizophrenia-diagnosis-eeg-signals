@@ -28,36 +28,42 @@ def load_data(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[Tuple[np
         f"[INFO] healthy_samples: {healthy_samples}, schizo_samples: {schizo_samples}, channel_size: {channel_size}, and sub: {sub}")
     # Get normal samples
     normal = []
-    gasf = GramianAngularField(image_size=112, method='summation')
+
     for j in range(healthy_samples):
         for i in range(channel_size):
             x = H[j][i, :sub]
             x = x.reshape(1, -1)
+            gasf = GramianAngularField(image_size=112, method='summation')
             x_gasf = gasf.fit_transform(x)
             normal.append(x_gasf[0])
-    gadf = GramianAngularField(image_size=112, method='difference')
+
+
     for j in range(healthy_samples):
         for i in range(channel_size):
             x = H[j][i, :sub]
             x = x.reshape(1, -1)
+            gadf = GramianAngularField(image_size=112, method='difference')
             x_gadf = gadf.fit_transform(x)
             normal.append(x_gadf[0])
     normal = np.array(normal)
     print(f"[INFO] normal samples: {normal.shape}")
+
     # Get schizophrenia samples
     schizo = []
-    gasf = GramianAngularField(image_size=112, method='summation')
+
     for j in range(schizo_samples):
         for i in range(channel_size):
             x = S[j][i, :sub]
             x = x.reshape(1, -1)
+            gasf = GramianAngularField(image_size=112, method='summation')
             x_gasf = gasf.fit_transform(x)
             schizo.append(x_gasf[0])
-    gadf = GramianAngularField(image_size=112, method='summation')
+
     for j in range(schizo_samples):
         for i in range(channel_size):
             x = S[j][i, :sub]
             x = x.reshape(1, -1)
+            gadf = GramianAngularField(image_size=112, method='difference')
             x_gadf = gadf.fit_transform(x)
             schizo.append(x_gadf[0])
     schizo = np.array(schizo)

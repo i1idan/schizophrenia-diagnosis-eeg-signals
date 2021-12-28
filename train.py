@@ -1,9 +1,10 @@
+from datetime import datetime
 import tensorflow as tf
 import numpy as np
 from data.load_data import load_data
 from models import load_model
 from utils.callbacks import get_callbacks
-from tensorflow.python.keras.utils.vis_utils import plot_model
+from sklearn.metrics import classification_report
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -14,9 +15,9 @@ parser.add_argument('--epochs', default=200, type=int, help="Number of training 
 parser.add_argument('--bs', default=4, type=int, help="batch size, default is set to 4")
 parser.add_argument('--checkpoints', default="./checkpoints", type=str,
                     help="Path to checkpoints, default is ./checkpoints")
-parser.add_argument("--early-stopping", default=30, type=int,
+parser.add_argument("--early-stopping", default=50, type=int,
                     help="early stopping patience epoch number, default is 15")
-parser.add_argument("--reduce-lr", default=10, type=int, help="reduce lr patience, default is 10")
+parser.add_argument("--reduce-lr", default=25, type=int, help="reduce lr patience, default is 10")
 args = parser.parse_args()
 
 # set seeds for reproducibility
@@ -33,7 +34,10 @@ model.summary()
 
 # train the model
 print(f"[INFO] Started the training for model: {args.model_name} ...")
-callbacks = get_callbacks(args.checkpoints, early_stopping_p=args.early_stopping, model_name=args.model_name,
+dir_ = args.checkpoints + '/' + args.model_name + "/" + '_{}'.format(
+    str(datetime.now()).replace(':', '_').replace(' ', '_'))
+callbacks = get_callbacks(dir_,
+                          early_stopping_p=args.early_stopping,
                           reduce_lr_patience=args.reduce_lr)
 history = model.fit(x_train, y_train,
                     epochs=args.epochs,
@@ -41,3 +45,9 @@ history = model.fit(x_train, y_train,
                     verbose=1,
                     validation_data=(x_test, y_test),
                     callbacks=callbacks)
+
+print("[INFO] confusion matrix:!")
+model = tf.keras.models.load_model(dir_ + '/model_best')
+y_pred = np.around(model.predict(x_test))
+rep = classification_report(y_test, y_pred)
+print(rep)

@@ -8,7 +8,6 @@ from datetime import datetime
 def get_callbacks(checkpoint_dir,
                   early_stopping_p,
                   reduce_lr_patience,
-                  model_name,
                   **kwargs):
     """
     This function use some callbacks from tensorflow.python.keras.callbacks
@@ -25,9 +24,7 @@ def get_callbacks(checkpoint_dir,
     reduce_lr: a tensorflow.python.keras.callbacks.ReduceLROnPlateau instance
     early_stopping: a tensorflow.python.keras.callbacks.EarlyStopping instance
     """
-    dir_ = checkpoint_dir + '/' + model_name + "/" + '_{}'.format(
-        str(datetime.now()).replace(':', '_').replace(' ', '_'))
-    checkpoint = ModelCheckpoint(filepath=dir_ + '/model_best',
+    checkpoint = ModelCheckpoint(filepath=checkpoint_dir + '/model_best',
                                  monitor='val_loss',
                                  save_best_only=True,
                                  mode='min',
@@ -45,11 +42,11 @@ def get_callbacks(checkpoint_dir,
     early_stopping = EarlyStopping(monitor="val_loss", patience=early_stopping_p, verbose=1)
 
     tensorboard = TensorBoard(
-        log_dir=dir_,
+        log_dir=checkpoint_dir,
         histogram_freq=0,
         write_graph=True,
         write_images=True)
     csv_logger = CSVLogger(
-        dir_ + "/log.csv",
+        checkpoint_dir + "/log.csv",
         append=True)
     return checkpoint, early_stopping, tensorboard, reduce_lr, csv_logger
