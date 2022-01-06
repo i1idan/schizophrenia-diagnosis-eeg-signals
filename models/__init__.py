@@ -1,5 +1,5 @@
 from tensorflow.keras.models import Model
-from .custom_fft import FFTCustom
+from .fft_custom import FFTCustom
 
 models = {"FFTCustom": FFTCustom}
 
