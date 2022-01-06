@@ -7,5 +7,6 @@ For further information about the input arguments run `python train.py -h` or se
 # To train a model more than once:
  Open up the train.ipynb...
 
-# Data
-To access the data send an email to `maryam.saeedi33@gmail.com`
+# Try on colab
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/i1idan/schizophrenia-diagnosis-eeg-signals/blob/main/colab/train.ipynb)
