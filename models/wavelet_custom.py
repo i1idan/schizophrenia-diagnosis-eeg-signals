@@ -8,7 +8,7 @@ import cv2
 class WaveletCustom:
 
     def __init__(self, **kwargs):
-        self.wavelet_layer = tf.keras.layers.Lambda(self.image_fft)
+        self.gabor_layer = tf.keras.layers.Lambda(self.gabor_filter)
         self.opt = tf.keras.optimizers.Adam(learning_rate=0.001)
 
     @staticmethod
@@ -24,9 +24,8 @@ class WaveletCustom:
 
     def get_model(self) -> Model:
         model = tf.keras.models.Sequential()
-        gabor_layer = tf.keras.layers.Lambda(self.gabor_filter)
         model.add(tf.keras.layers.Input(shape=(112, 112, 1)))
-        model.add(gabor_layer)
+        model.add(self.gabor_layer )
         model.add(Conv2D(8, kernel_size=(3, 3), strides=(1, 1),
                          activation='relu'))
         model.add(Conv2D(8, kernel_size=(2, 2), activation='relu'))
