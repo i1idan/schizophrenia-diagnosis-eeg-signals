@@ -9,4 +9,4 @@ For further information about the input arguments run `python train.py -h` or se
 
 # Try on colab
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/i1idan/schizophrenia-diagnosis-eeg-signals/blob/main/colab/train.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/i1idan/schizophrenia-diagnosis-eeg-signals/blob/main/colab/train_wavelet.ipynb)
