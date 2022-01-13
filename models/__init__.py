@@ -1,7 +1,7 @@
 from tensorflow.keras.models import Model
-from .fft_custom import FFTCustom
+from .wavelet_custom import WaveletCustom
 
-models = {"FFTCustom": FFTCustom}
+models = {"WaveletCustom": WaveletCustom}
 
 
 def load_model(model_name, **kwargs) -> Model:
