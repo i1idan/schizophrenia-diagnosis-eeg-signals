@@ -46,3 +46,8 @@ class FFTCustom:
         # model = Model(inputs=inputs, outputs=x)
         model.compile(loss='binary_crossentropy', optimizer=self.opt, metrics=['accuracy'])
         return model
+
+
+if __name__ == '__main__':
+    model = FFTCustom().get_model()
+    model.summary()
