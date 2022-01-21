@@ -6,8 +6,8 @@ import warnings
 
 # suppress warnings:
 warnings.filterwarnings("ignore")
-
 from deep_utils import tf_set_seed
+from utils.utils import save_params
 from datetime import datetime
 import tensorflow as tf
 import numpy as np
@@ -20,7 +20,6 @@ from deep_utils import remove_create
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sn
-from utils.utils import save_params
 
 parser = ArgumentParser()
 parser.add_argument('--seed', default=1234, type=int, help="Set random seed for reproducibility")
@@ -40,10 +39,6 @@ args = parser.parse_args()
 
 # set seed for reproducibility
 tf_set_seed(args.seed)
-
-# np.random.seed(args.seed)
-# random.seed(args.seed)
-# tf.random.set_seed(args.seed)
 
 
 def main():
@@ -77,7 +72,8 @@ def main():
               batch_size=args.batch_size,
               verbose=1,
               validation_data=(x_test, y_test),
-              callbacks=callbacks)
+              callbacks=callbacks,
+              shuffle=False)
     print("[INFO] confusion matrix:!")
     print("[INFO] Loading best model:")
     model = tf.keras.models.load_model(dir_ + '/model_best')
