@@ -47,7 +47,13 @@ def main():
     print(f"[INFO] Model:{args.model_name} is loaded ...")
     model.summary()
     # load data
-    (x_train, y_train), (x_test, y_test) = load_data(args.data_path, args.seed)
+    # for transformer load as signal
+    if args.model_name == 'Transformer':
+      as_signals = True
+    else:
+      as_signals = False
+    (x_train, y_train), (x_test, y_test) = load_data(args.data_path, args.seed,
+                                                     as_signals)
     # train the model
     print(f"[INFO] Started the training for model: {args.model_name} ...")
     if args.dir_name:
