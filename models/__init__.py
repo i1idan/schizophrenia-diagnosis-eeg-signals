@@ -1,7 +1,9 @@
 from tensorflow.keras.models import Model
 from .fft_custom import FFTCustom
+from .transformer import Transformer
 
-models = {"FFTCustom": FFTCustom}
+models = {"FFTCustom": FFTCustom,
+          "Transformer": Transformer}
 
 
 def load_model(model_name, **kwargs) -> Model:
