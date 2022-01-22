@@ -4,9 +4,12 @@ from pyts.image import GramianAngularField
 import scipy.io
 import cv2
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 
-def load_data(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+def load_data(data_path: str = './DATA.mat', seed: int = 1234,
+              as_signals=False) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+
     # Load data
     data = scipy.io.loadmat(data_path)
     # extract-information
@@ -24,66 +27,112 @@ def load_data(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[Tuple[np
     schizo_samples = S.shape[0]  # number of confirmed schizophrenia samples
     channel_size = CHAN.shape[1]  # number of channels
     sub = 15000  # We use a small subset of information
-    print(
-        f"[INFO] healthy_samples: {healthy_samples}, schizo_samples: {schizo_samples}, channel_size: {channel_size}, and sub: {sub}")
-    # Get normal samples
-    normal = []
-
-    for j in range(healthy_samples):
-        for i in range(channel_size):
-            x = H[j][i, :sub]
-            x = x.reshape(1, -1)
-            gasf = GramianAngularField(image_size=112, method='summation')
-            x_gasf = gasf.fit_transform(x)
-            normal.append(x_gasf[0])
 
 
-    for j in range(healthy_samples):
-        for i in range(channel_size):
-            x = H[j][i, :sub]
-            x = x.reshape(1, -1)
-            gadf = GramianAngularField(image_size=112, method='difference')
-            x_gadf = gadf.fit_transform(x)
-            normal.append(x_gadf[0])
-    normal = np.array(normal)
-    print(f"[INFO] normal samples: {normal.shape}")
+    if as_signals:
+      # create labels
+      n = np.zeros(shape=(healthy_samples, 1))
+      s = np.ones(shape=(schizo_samples, 1))
+      labels = np.concatenate((s, n), axis=0)
+      data = np.array(np.concatenate((H, S), axis=0))
+      new_data = []
 
-    # Get schizophrenia samples
-    schizo = []
+      for data in data:
+        new_data.append(data)
 
-    for j in range(schizo_samples):
-        for i in range(channel_size):
-            x = S[j][i, :sub]
-            x = x.reshape(1, -1)
-            gasf = GramianAngularField(image_size=112, method='summation')
-            x_gasf = gasf.fit_transform(x)
-            schizo.append(x_gasf[0])
+      data = np.array(new_data)
+      del new_data
+      data = data[:, 0:19, 0:sub]
 
-    for j in range(schizo_samples):
-        for i in range(channel_size):
-            x = S[j][i, :sub]
-            x = x.reshape(1, -1)
-            gadf = GramianAngularField(image_size=112, method='difference')
-            x_gadf = gadf.fit_transform(x)
-            schizo.append(x_gadf[0])
-    schizo = np.array(schizo)
-    print(f"[INFO] schizo samples: {schizo.shape}")
-    # get data and labels
-    labels = np.concatenate([np.zeros(len(normal)), np.ones(len(schizo))])
-    data = np.concatenate([normal, schizo], axis=0)
-    data = np.array([np.expand_dims(d, axis=-1) for d in data])
-    print(f"[INFO] labels: {labels.shape}")
-    print(f"[INFO] data: {data.shape}")
+      # spread channels
+      data_new = []
+      labels_new = []
 
-    # Split the dataset
-    x_train, x_test, y_train, y_test = train_test_split(data,
-                                                        labels,
-                                                        test_size=0.2,
-                                                        random_state=seed,
-                                                        shuffle=True,
-                                                        stratify=labels
-                                                        )
+      for i, _ in enumerate(data):
+        for j, _ in enumerate(data[i]):
+          data_new.append(data[i][j])
+          labels_new.append(labels[i])
 
-    print(f"[INFO] x_train.shape: {x_train.shape}, y_train.shape: {y_train.shape}")
-    print(f"[INFO] x_test.shape: {x_test.shape}, y_test.shape: {y_test.shape}")
-    return (x_train, y_train), (x_test, y_test)
+      data = np.array(data_new)
+      labels = np.array(labels_new)
+      print(data.shape)
+      print(labels.shape)
+      del data_new, labels_new
+      x_train, x_test, y_train, y_test = train_test_split(data, labels, test_size=0.2,
+                                                    shuffle=True, random_state=seed,
+                                                    stratify=labels)
+
+      sc = StandardScaler()
+      x_train = sc.fit_transform(x_train)
+      x_test = sc.transform(x_test)
+      x_train = x_train.reshape(-1, 500, 30)
+      x_test = x_test.reshape(-1, 500, 30)
+      print(f"[INFO] x_train.shape: {x_train.shape}, y_train.shape: {y_train.shape}")
+      print(f"[INFO] x_test.shape: {x_test.shape}, y_test.shape: {y_test.shape}")
+      return (x_train, y_train), (x_test, y_test)
+
+    else:
+        
+      print(
+          f"[INFO] healthy_samples: {healthy_samples}, schizo_samples: {schizo_samples}, channel_size: {channel_size}, and sub: {sub}")
+      # Get normal samples
+      normal = []
+
+      for j in range(healthy_samples):
+          for i in range(channel_size):
+              x = H[j][i, :sub]
+              x = x.reshape(1, -1)
+              gasf = GramianAngularField(image_size=112, method='summation')
+              x_gasf = gasf.fit_transform(x)
+              normal.append(x_gasf[0])
+
+
+      for j in range(healthy_samples):
+          for i in range(channel_size):
+              x = H[j][i, :sub]
+              x = x.reshape(1, -1)
+              gadf = GramianAngularField(image_size=112, method='difference')
+              x_gadf = gadf.fit_transform(x)
+              normal.append(x_gadf[0])
+      normal = np.array(normal)
+      print(f"[INFO] normal samples: {normal.shape}")
+
+      # Get schizophrenia samples
+      schizo = []
+
+      for j in range(schizo_samples):
+          for i in range(channel_size):
+              x = S[j][i, :sub]
+              x = x.reshape(1, -1)
+              gasf = GramianAngularField(image_size=112, method='summation')
+              x_gasf = gasf.fit_transform(x)
+              schizo.append(x_gasf[0])
+
+      for j in range(schizo_samples):
+          for i in range(channel_size):
+              x = S[j][i, :sub]
+              x = x.reshape(1, -1)
+              gadf = GramianAngularField(image_size=112, method='difference')
+              x_gadf = gadf.fit_transform(x)
+              schizo.append(x_gadf[0])
+      schizo = np.array(schizo)
+      print(f"[INFO] schizo samples: {schizo.shape}")
+      # get data and labels
+      labels = np.concatenate([np.zeros(len(normal)), np.ones(len(schizo))])
+      data = np.concatenate([normal, schizo], axis=0)
+      data = np.array([np.expand_dims(d, axis=-1) for d in data])
+      print(f"[INFO] labels: {labels.shape}")
+      print(f"[INFO] data: {data.shape}")
+
+      # Split the dataset
+      x_train, x_test, y_train, y_test = train_test_split(data,
+                                                          labels,
+                                                          test_size=0.2,
+                                                          random_state=seed,
+                                                          shuffle=True,
+                                                          stratify=labels
+                                                          )
+
+      print(f"[INFO] x_train.shape: {x_train.shape}, y_train.shape: {y_train.shape}")
+      print(f"[INFO] x_test.shape: {x_test.shape}, y_test.shape: {y_test.shape}")
+      return (x_train, y_train), (x_test, y_test)
