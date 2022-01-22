@@ -121,6 +121,7 @@ class Transformer(object):
     x = transformer_block(x)
     x = layers.Flatten()(x)
     x = layers.Dense(dense_units, activation="relu")(x)
+    x = Dropout(0.5)(x)
     if classes <=1:
       outputs = layers.Dense(classes, activation="sigmoid")(x)
     else:
@@ -131,8 +132,8 @@ class Transformer(object):
 
   def get_model(self) -> Model:
     transformer = self.TimeSeriesTransformer(input_length=500,
-                                            embed_dim=30, num_heads=5, ff_dim=1,
-                                            classes=1, dense_units=1)
+                                            embed_dim=30, num_heads=5, ff_dim=32,
+                                            classes=1, dense_units=32)
 
     inputs = tf.keras.layers.Input(shape=(500, 30))
     x = transformer(inputs)
