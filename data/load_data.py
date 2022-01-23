@@ -9,7 +9,8 @@ from sklearn.preprocessing import StandardScaler
 def load_data(model_name, **kwargs):
     return {
         "Transformer": load_data_1d,
-        "FFTCustom": load_data_2d
+        "FFTCustom": load_data_2d,
+        "WaveletCustom": load_data_2d,
     }[model_name](**kwargs)
 
 

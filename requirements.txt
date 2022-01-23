@@ -1,4 +1,6 @@
 tensorflow==2.7.0
-deep_utils==0.8.13
+pyts==0.12.0
+pandas
+deep_utils==0.8.14
 pyts==0.12.0
 seaborn==0.11.2

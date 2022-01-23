@@ -1,8 +1,10 @@
+from .wavelet_custom import WaveletCustom
 from tensorflow.keras.models import Model
 from .fft_custom import FFTCustom
 from .transformer import Transformer
 
-models = {"FFTCustom": FFTCustom,
+models = {"WaveletCustom": WaveletCustom,
+          "FFTCustom": FFTCustom,
           "Transformer": Transformer}
 
 
