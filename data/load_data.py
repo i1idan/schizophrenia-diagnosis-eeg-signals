@@ -11,7 +11,75 @@ def load_data(model_name, **kwargs):
         "Transformer": load_data_1d,
         "FFTCustom": load_data_2d,
         "WaveletCustom": load_data_2d,
+        "conv_lstm": load_data_conv_lstm,
     }[model_name](**kwargs)
+
+
+def load_data_conv_lstm(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
+    Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
+    print('[INFO] Loading 1d data')
+    # Load data
+    data = scipy.io.loadmat(data_path)
+    # extract-information
+    H = data['H'].reshape(-1)  # healthy
+    print(f"[INFO] H.shape: {H.shape}, each sample has (channels, values): {H[0].shape} !")
+    S = data['S'].reshape(14)  # schizophrenia
+    print(f"[INFO] S.shape: {H.shape}, each sample has (channels, values): {S[0].shape} !")
+    print(f"[INFO] S.shape: {S.shape}")
+    CHAN = data['CHAN']  # channels
+    print(f"[INFO] CHAN.shape: {CHAN.shape}")
+    Fs = data['Fs']  # ferequency
+    print(f"[INFO] Fs.shape: {Fs.shape}")
+    # Define Static variable
+    healthy_samples = H.shape[0]  # number of healthy samples
+    schizo_samples = S.shape[0]  # number of confirmed schizophrenia samples
+    channel_size = CHAN.shape[1]  # number of channels
+    sub = 15000  # We use a small subset of information
+
+    # create labels
+    n = np.zeros(shape=(healthy_samples, 1))
+    s = np.ones(shape=(schizo_samples, 1))
+    labels = np.concatenate((s, n), axis=0)
+    data = np.array(np.concatenate((H, S), axis=0))
+    new_data = []
+
+    for data in data:
+        new_data.append(data)
+
+    data = np.array(new_data)
+    del new_data
+    data = data[:, 0:19, 0:sub]
+
+    # spread channels
+    data_new = []
+    labels_new = []
+
+    for i, _ in enumerate(data):
+        for j, _ in enumerate(data[i]):
+            data_new.append(data[i][j])
+            labels_new.append(labels[i])
+
+    data = np.array(data_new)
+    labels = np.array(labels_new)
+    print(data.shape)
+    print(labels.shape)
+    del data_new, labels_new
+
+    x_train, x_test, y_train, y_test = train_test_split(data,
+                                                        labels,
+                                                        test_size=0.2,
+                                                        shuffle=True,
+                                                        random_state=seed,
+                                                        stratify=labels)
+    print("[INFO] Scaling the inputs")
+    sc = StandardScaler()
+    x_train = sc.fit_transform(x_train)
+    x_test = sc.transform(x_test)
+    x_train = x_train.reshape(-1, 150, 100, 1)
+    x_test = x_test.reshape(-1, 150, 100, 1)
+    print(f"[INFO] x_train.shape: {x_train.shape}, y_train.shape: {y_train.shape}")
+    print(f"[INFO] x_test.shape: {x_test.shape}, y_test.shape: {y_test.shape}")
+    return (x_train, y_train), (x_test, y_test)
 
 
 def load_data_1d(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
@@ -22,7 +90,7 @@ def load_data_1d(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
     # extract-information
     H = data['H'].reshape(-1)  # healthy
     print(f"[INFO] H.shape: {H.shape}, each sample has (channels, values): {H[0].shape} !")
-    S = data['S'].reshape(14)  # schizopherni
+    S = data['S'].reshape(14)  # schizophrenia
     print(f"[INFO] S.shape: {H.shape}, each sample has (channels, values): {S[0].shape} !")
     print(f"[INFO] S.shape: {S.shape}")
     CHAN = data['CHAN']  # channels
@@ -164,3 +232,7 @@ def load_data_2d(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
     print(f"[INFO] x_train.shape: {x_train.shape}, y_train.shape: {y_train.shape}")
     print(f"[INFO] x_test.shape: {x_test.shape}, y_test.shape: {y_test.shape}")
     return (x_train, y_train), (x_test, y_test)
+
+
+if __name__ == '__main__':
+    load_data_1d()
