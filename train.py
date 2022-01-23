@@ -1,22 +1,25 @@
 import os
+
 # disable tensorflow debugging information
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import warnings
+
 # suppress warnings:
 warnings.filterwarnings("ignore")
-
+from deep_utils import tf_set_seed
+from utils.utils import save_params
 from datetime import datetime
 import tensorflow as tf
 import numpy as np
 from data.load_data import load_data
 from models import load_model
 from utils.callbacks import get_callbacks
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 from argparse import ArgumentParser
-import random
 from deep_utils import remove_create
-
-
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sn
 
 parser = ArgumentParser()
 parser.add_argument('--seed', default=1234, type=int, help="Set random seed for reproducibility")
@@ -34,10 +37,8 @@ parser.add_argument("--dir-name", default='', type=str,
 
 args = parser.parse_args()
 
-# set seeds for reproducibility
-np.random.seed(args.seed)
-random.seed(args.seed)
-tf.random.set_seed(args.seed)
+# set seed for reproducibility
+tf_set_seed(args.seed)
 
 
 def main():
@@ -46,7 +47,9 @@ def main():
     print(f"[INFO] Model:{args.model_name} is loaded ...")
     model.summary()
     # load data
-    (x_train, y_train), (x_test, y_test) = load_data(args.data_path, args.seed)
+    (x_train, y_train), (x_test, y_test) = load_data(model_name=args.model_name,
+                                                     data_path=args.data_path,
+                                                     seed=args.seed)
     # train the model
     print(f"[INFO] Started the training for model: {args.model_name} ...")
     if args.dir_name:
@@ -54,10 +57,14 @@ def main():
         if os.path.exists(dir_):
             print(f"[INFO] {dir_} exists, removing it ...")
             remove_create(dir_)
-
+        else:
+            os.makedirs(dir_, exist_ok=False)
     else:
         dir_ = args.checkpoints + '/' + args.model_name + "/" + '_{}'.format(
             str(datetime.now()).replace(':', '_').replace(' ', '_'))
+        os.makedirs(dir_, exist_ok=False)
+    # save params
+    save_params(dir_ + "/params.txt", args)
     callbacks = get_callbacks(dir_,
                               early_stopping_p=args.early_stopping,
                               reduce_lr_patience=args.reduce_lr)
@@ -67,15 +74,27 @@ def main():
               batch_size=args.batch_size,
               verbose=1,
               validation_data=(x_test, y_test),
-              callbacks=callbacks)
+              callbacks=callbacks,
+              shuffle=False)
     print("[INFO] confusion matrix:!")
     print("[INFO] Loading best model:")
     model = tf.keras.models.load_model(dir_ + '/model_best')
     y_pred = np.around(model.predict(x_test))
     rep = classification_report(y_test, y_pred)
-    with open(dir_ + "/conf_matrix.txt", mode='w') as f:
+    with open(dir_ + "/classification_report.txt", mode='w') as f:
         f.write(rep)
     print(rep)
+
+    print("[INFO] Computing Confusion matrix")
+    conf_matrix = confusion_matrix(y_test, y_pred)
+    df_cm = pd.DataFrame(conf_matrix, index=["healthy", "schizophrenia"], columns=["healthy", "schizophrenia"])
+    df_cm.to_csv(dir_ + '/conf_matrix.csv')
+    plt.figure(figsize=(10, 7))
+    sn.heatmap(df_cm, annot=True, fmt='g')
+    plt.xlabel("")
+    plt.ylabel("")
+    plt.savefig(dir_ + '/conf_matrix.jpg')
+    print("conf_matrix.jpg is successfully saved!")
 
 
 if __name__ == '__main__':
