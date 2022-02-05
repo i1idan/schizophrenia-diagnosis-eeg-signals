@@ -32,7 +32,7 @@ class ConvLstm:
         model.add(Dense(128, activation='relu'))
         model.add(Dropout(0.5))
         model.add(Dense(1, activation='sigmoid'))
-        model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
 
 
