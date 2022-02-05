@@ -21,6 +21,32 @@ def get_mean_std(csv_lists,
     return metrics
 
 
+def get_conf_mean_std(conf_matrices):
+    metrics = defaultdict(list)
+    print(f"[INFO] Extracting values from confusion matrices")
+    for conf in conf_matrices:
+        df = pd.read_csv(conf, index_col=0).values
+        print(f"[INFO] Getting the values of df: {conf}")
+        tp = df[1, 1]
+        tn = df[0, 0]
+        fn = df[0, 1]
+        fp = df[1, 0]
+
+        sensitivity = tp / (tp + fn)
+        specificity = tn / (tn + fp)
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        f1_score = (2 * tp) / (2 * tp + fp + fn)
+        metrics["sensitivity"].append(sensitivity)
+        metrics["specificity"].append(specificity)
+        metrics["accuracy"].append(accuracy)
+        metrics["f1_score"].append(f1_score)
+
+    metrics = {metric: {"std": round(np.std(val_list), 4), "mean": round(np.mean(val_list), 4)} for metric, val_list in
+               metrics.items()}
+    print(f'[INFO] Successfully Extracted {metrics.keys()}')
+    return metrics
+
+
 if __name__ == '__main__':
     metrics = get_mean_std(
         csv_lists=["/home/ai/projects/schizo/checkpoints/FFTCustom/_2022-01-06_13_37_26.379079/log.csv",
