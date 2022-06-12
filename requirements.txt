@@ -5,3 +5,4 @@ deep_utils==0.8.14
 pyts==0.12.0
 seaborn==0.11.2
 gdown==4.4.0
+seaborn==0.11.2
