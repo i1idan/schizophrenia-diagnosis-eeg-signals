@@ -1,11 +1,8 @@
 import tensorflow as tf
-import numpy as np
 from tensorflow import keras
 from tensorflow.keras.models import Model
 from tensorflow.keras import layers
-from tensorflow.keras.layers import TimeDistributed
 from tensorflow.keras.layers import Input, Dense, Dropout, GlobalAveragePooling1D
-from tensorflow.keras.layers import Flatten, Reshape, LSTM, Average
 
 
 class MultiHeadSelfAttention(layers.Layer):
@@ -85,7 +82,7 @@ class TransformerBlock(layers.Layer):
 
 
 class PositionEmbedding(layers.Layer):
-    def __init__(self, maxlen, vocab_size, embed_dim):
+    def __init__(self, maxlen, embed_dim):
         super(PositionEmbedding, self).__init__()
         self.pos_emb = layers.Embedding(input_dim=maxlen, output_dim=embed_dim)
 
@@ -99,19 +96,19 @@ class PositionEmbedding(layers.Layer):
 class Transformer:
 
     @staticmethod
-    def timeseries_transformer(input_length,
+    def timeseries_transformer(input_length=(500, 30),
                                embed_dim=30, num_heads=2, ff_dim=2,
                                classes=1, dense_units=20):
         """
         TimeSeries Transformer Classifier Instance.
+        :param input_length: input length
         :param embed_dim: Embedding size for each token.
         :param num_heads: Number of attention heads.
         :param ff_dim: Hidden layer size in feed forward network inside transformer.
         """
 
-        inputs = layers.Input(shape=(500, 30))
-        embedding_layer = PositionEmbedding(vocab_size=12158,
-                                            embed_dim=30,
+        inputs = layers.Input(shape=input_length)
+        embedding_layer = PositionEmbedding(embed_dim=30,
                                             maxlen=500)
         x = embedding_layer(inputs)
         transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim, )
@@ -128,7 +125,7 @@ class Transformer:
         return model
 
     def get_model(self) -> Model:
-        transformer = self.timeseries_transformer(input_length=500,
+        transformer = self.timeseries_transformer(input_length=(500, 30),
                                                   embed_dim=30, num_heads=5, ff_dim=32,
                                                   classes=1, dense_units=32)
 
