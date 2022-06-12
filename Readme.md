@@ -8,6 +8,7 @@ pip install -r requirements.txt
 # Download data
 ```
 gdown --id 1jnWHWrArzJQIvny0cQkfPP42hEJAp_56
+mv DATA.mat data/DATA.mat
 ```
 
 # Train a model for once:
