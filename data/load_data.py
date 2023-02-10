@@ -167,10 +167,6 @@ def load_data_2d(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
     for j in range(healthy_samples):
         for i in range(channel_size):
             x = H[j][i, :sub]
-            # x = x.reshape(1, -1)
-            # gasf = GramianAngularField(image_size=112, method='summation')
-            # x_gasf = gasf.fit_transform(x)
-            # normal.append(x_gasf[0])
             normal.append(x)
 
     normal = np.array(normal)
@@ -182,10 +178,6 @@ def load_data_2d(data_path: str = './DATA.mat', seed: int = 1234) -> Tuple[
     for j in range(schizo_samples):
         for i in range(channel_size):
             x = S[j][i, :sub]
-            # x = x.reshape(1, -1)
-            # gasf = GramianAngularField(image_size=112, method='summation')
-            # x_gasf = gasf.fit_transform(x)
-            # schizo.append(x_gasf[0])
             schizo.append(x)
 
     schizo = np.array(schizo)
