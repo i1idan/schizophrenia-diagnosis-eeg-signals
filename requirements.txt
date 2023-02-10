@@ -1,8 +1,11 @@
-tensorflow==2.7.0
+tensorflow==2.9.0
 pyts==0.12.0
-pandas
+pandas==1.5.3
 deep_utils==0.8.14
 pyts==0.12.0
 seaborn==0.11.2
 gdown==4.4.0
 seaborn==0.11.2
+scipy==1.10.0
+scikit-learn==1.2.0
+numpy==1.21.4
