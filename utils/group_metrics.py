@@ -37,6 +37,10 @@ def get_conf_mean_std(conf_matrices):
 
         sensitivity = tp / (tp + fn)
         specificity = tn / (tn + fp)
+        if str(specificity) == 'nan':
+            specificity = 0
+        if str(sensitivity) == "nan":
+            sensitivity = 0
         accuracy = (tp + tn) / (tp + tn + fp + fn)
         f1_score = (2 * tp) / (2 * tp + fp + fn)
         metrics["sensitivity"].append(sensitivity)
@@ -63,9 +67,15 @@ if __name__ == '__main__':
     multi_train = 10
     model_names = ["WaveletCustom", "FFTCustom", "Transformer", "conv_lstm"]
     checkpoints = "../checkpoints"
+    # for model_name in model_names:
+    #     print(f"[INFO] Processing Model: {model_name}")
+    #     csv_files = [os.path.join(checkpoints, model_name, f"{n}", "log.csv") for n in range(multi_train)]
+    #     metrics = get_mean_std(csv_files,
+    #                            arguments=("accuracy", "loss", "val_accuracy", "val_loss"))
+    #     print(model_name, "\n", metrics)
     for model_name in model_names:
-        print(f"[INFO] Processing Model: {model_name}")
-        csv_files = [os.path.join(checkpoints, model_name, f"{n}", "log.csv") for n in range(multi_train)]
-        metrics = get_mean_std(csv_files,
-                               arguments=("accuracy", "loss", "val_accuracy", "val_loss"))
+        print(f"[INFO] Processing {model_name}")
+        conf_matrixes = [os.path.join(checkpoints, model_name, f"{n}", "conf_matrix.csv") for n in range(multi_train)]
+
+        metrics = get_conf_mean_std(conf_matrixes)
         print(model_name, "\n", metrics)
