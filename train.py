@@ -26,7 +26,7 @@ parser = ArgumentParser()
 parser.add_argument('--seed', default=1234, type=int, help="Set random seed for reproducibility")
 parser.add_argument('--model-name', default='conv_lstm', help="Choose the model to train. The default is FFTCustom")
 parser.add_argument('--data-path', default='./data/DATA.mat', help="Path to the Data. The default is ./data/DATA.mat")
-parser.add_argument('--epochs', default=2, type=int, help="Number of training epochs, default is set to 200")
+parser.add_argument('--epochs', default=200, type=int, help="Number of training epochs, default is set to 200")
 parser.add_argument('--batch-size', default=4, type=int, help="batch size, default is set to 4")
 parser.add_argument('--checkpoints', default="./checkpoints", type=str,
                     help="Path to checkpoints, default is ./checkpoints")
